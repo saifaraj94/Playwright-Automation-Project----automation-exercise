@@ -1,17 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
-import path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config();
 
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: 2,
+  retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: 'list',
+  reporter: [
+  ['list'],
+  ['html', { outputFolder: 'playwright-report', open: 'never' }]
+],
+
   use: {
+    headless: true,
     baseURL: 'https://automationexercise.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
