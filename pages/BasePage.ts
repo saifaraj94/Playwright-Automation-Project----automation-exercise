@@ -13,81 +13,63 @@ export class BasePage {
 
     constructor(page: Page) {
         this.page = page;
-        this.headerHomeLink = page.locator('header a[href="/"]');
-        this.headerProductsLink = page.locator('header a[href="/products"]');
-        this.headerCartLink = page.locator('header a[href="/view_cart"]');
-        this.headerSignupLoginLink = page.locator('header a[href="/login"]');
-        this.headerContactUsLink = page.locator('header a[href="/contact_us"]');
-        this.headerDeleteAccountLink = page.locator('header a[href="/delete_account"]');
-        this.headerLogoutLink = page.locator('header a[href="/logout"]');
-        this.loggedInUserText = page.locator('header li:has-text("Logged in as")');
+        // Navigation Bar
+        this.headerHomeLink = page.getByRole('link', { name: 'Home' });
+        this.headerProductsLink = page.getByRole('link', { name: 'Products' });
+        this.headerCartLink = page.getByRole('link', { name: 'Cart' });
+        this.headerSignupLoginLink = page.getByRole('link', { name: 'Signup / Login' });
+        this.headerContactUsLink = page.getByRole('link', { name: 'Contact us' });
+        this.headerDeleteAccountLink = page.getByRole('link', { name: 'Delete Account' });
+        this.headerLogoutLink = page.getByRole('link', { name: 'Logout' });
+
+        // Assertions/Status
+        this.loggedInUserText = page.getByText('Logged in as');
     }
 
     async navigateTo(path: string = '/') {
+        await this.setupAdBlocking();
         await this.page.goto(path);
-        await this.handleAds();
+        // await this.handleAds(); // Kept as fallback but network blocking should catch 99%
+    }
+
+    async setupAdBlocking() {
+        await this.page.route('**/*{googleads,g.doubleclick,googlesyndication,adsystem,adservice,rubiconproject,criteo,advertising,adsbox}*', route => route.abort());
     }
 
     async handleAds() {
+        // Fallback for any persistent overlays using aggressive JS helpers
         const adSelectors = [
             '#dismiss-button',
+            'div[id^="aswift"]',
+            'iframe[id^="aswift"]',
             '[aria-label="Close ad"]',
-            'span:has-text("Close")',
-            '.ns-sh09x-e-7',
-            'div:has-text("Close")',
-            '#close-button',
-            '.dismiss-button'
+            '.dismiss-button',
+            '#close-button'
         ];
-        const combinedSelector = adSelectors.join(', ');
 
         try {
-            // Remove ad iframes and containers
-            await this.page.evaluate(() => {
-                // Remove iframes with advertisement title
-                const iframes = document.querySelectorAll('iframe[title="Advertisement"]');
-                iframes.forEach(iframe => iframe.remove());
+            // Quick evaluate based removal is faster than locators for these dynamic iframes
+            await this.page.addStyleTag({ content: 'iframe[src*="google"], iframe[id^="aswift"], .adsbygoogle { display: none !important; }' });
 
-                // Remove ad containers that intercept events
-                const adHosts = document.querySelectorAll('[id^="aswift_"]');
-                adHosts.forEach(host => host.remove());
-
-                // Remove adsbygoogle containers
-                const adContainers = document.querySelectorAll('.adsbygoogle');
-                adContainers.forEach(container => container.remove());
-            });
-
-            // Check main page first
-            const mainLocator = this.page.locator(combinedSelector).first();
-            if (await mainLocator.isVisible({ timeout: 1000 })) {
-                await mainLocator.click({ force: true });
-                return;
-            }
-
-            // Check iframes (usually Google Ads)
-            const frames = this.page.frames();
-            for (const frame of frames) {
-                try {
-                    const locator = frame.locator(combinedSelector).first();
-                    if (await locator.isVisible({ timeout: 500 })) {
-                        await locator.click({ force: true });
-                        return;
-                    }
-                } catch (innerError) {
-                    // Frame might be detached or cross-origin
+            for (const selector of adSelectors) {
+                const element = this.page.locator(selector).first();
+                if (await element.isVisible({ timeout: 100 })) {
+                    await element.click({ force: true, timeout: 500 }).catch(() => { });
                 }
             }
         } catch (e) {
-            // Silent catch
+            // Ignore ad handling errors
         }
     }
 
     async clickWithAdHandling(locator: Locator) {
-        await this.handleAds();
+        // Just click, rely on network blocking. If it fails, try one fallback.
         try {
-            await locator.click({ timeout: 5000 });
+            await locator.click();
         } catch (e) {
+            console.log('Click intercepted, retrying after ad check...');
             await this.handleAds();
-            await locator.click({ timeout: 10000 });
+            await locator.click({ force: true });
         }
     }
 

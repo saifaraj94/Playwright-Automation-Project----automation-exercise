@@ -11,7 +11,7 @@ export class CheckoutPage extends BasePage {
     constructor(page: Page) {
         super(page);
         this.commentInput = page.locator('textarea.form-control');
-        this.placeOrderButton = page.locator('a.check_out[href="/payment"]');
+        this.placeOrderButton = page.getByRole('link', { name: 'Place Order' });
         this.addressDetails = page.locator('#address_delivery');
         this.deliveryAddress = page.locator('#address_delivery');
         this.billingAddress = page.locator('#address_invoice');

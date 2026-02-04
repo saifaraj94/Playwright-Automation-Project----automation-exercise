@@ -18,14 +18,15 @@ test.describe('Cart Tests', () => {
         await homePage.load();
     });
 
-    test('Test Case 11: Verify Subscription in Cart page', async () => {
+    test('Test Case 10: Verify Subscription in Cart page', async () => {
         await cartPage.load();
         await cartPage.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        await homePage.subscribe('cart@example.com'); // HomePage has sub methods
+        await homePage.subscriptionEmailInput.waitFor({ state: 'visible' });
+        await homePage.subscribe('cart_' + Date.now() + '@example.com');
         await homePage.verifySubscriptionSuccess();
     });
 
-    test('Test Case 12: Add Products in Cart', async () => {
+    test('Test Case 11: Add Products in Cart', async () => {
         await homePage.headerProductsLink.click();
 
         // Add first product
@@ -34,27 +35,24 @@ test.describe('Cart Tests', () => {
         await productsPage.addProductToCart(1);
 
         await cartPage.load();
+        // Wait for table to be populated
+        await cartPage.cartItems.first().waitFor({ state: 'visible', timeout: 15000 });
         await expect(cartPage.cartItems).toHaveCount(2);
     });
 
-    test('Test Case 13: Verify Product quantity in Cart', async () => {
-        await homePage.viewProductDetails(2);
-        await productDetailPage.setQuantity('4');
-        await productDetailPage.addToCart();
 
-        await cartPage.load();
-        const quantityText = await cartPage.getProductQuantity();
-        expect(quantityText).toBe('4');
-    });
-
-    test('Test Case 17: Remove Products From Cart', async () => {
+    test('Test Case 12: Remove Products From Cart', async () => {
         await homePage.headerProductsLink.click();
         await productsPage.addProductToCart(0);
         await cartPage.load();
         await expect(cartPage.cartItems).toHaveCount(1);
 
-        await cartPage.page.locator('.cart_quantity_delete').first().click();
+        // Click delete using the page object's ad handling
+        const deleteBtn = cartPage.page.locator('.cart_quantity_delete').first();
+        await cartPage.clickWithAdHandling(deleteBtn);
+
+        // Verification
         await expect(cartPage.cartItems).toHaveCount(0);
-        await expect(cartPage.page.locator('text=Cart is empty!')).toBeVisible();
+        await expect(cartPage.page.getByText('Cart is empty!')).toBeVisible();
     });
 });

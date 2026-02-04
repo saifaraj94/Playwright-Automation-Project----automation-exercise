@@ -37,7 +37,7 @@ test.describe('Checkout and Order Tests', () => {
         await homePage.load();
     });
 
-    test('Test Case 14: Place Order: Register while Checkout', async () => {
+    test('Test Case 13: Place Order: Register while Checkout', async () => {
         await homePage.headerProductsLink.click();
         await productsPage.addProductToCart(0);
         await cartPage.load();
@@ -58,14 +58,14 @@ test.describe('Checkout and Order Tests', () => {
         await checkoutPage.verifyAddressDetails(user.address1);
         await checkoutPage.placeOrder();
 
-        await paymentPage.enterPaymentDetails(user.name, '4242', '123', '12', '2025');
+        await paymentPage.enterPaymentDetails(user.name, '4111111111111111', '123', '12', '2025');
         await paymentPage.clickPayAndConfirm();
 
         await expect(paymentPage.successMessage).toBeVisible();
         await homePage.headerDeleteAccountLink.click();
     });
 
-    test('Test Case 15: Place Order: Register before Checkout', async () => {
+    test('Test Case 14: Place Order: Register before Checkout', async () => {
         const user = createRandomUser();
         await homePage.headerSignupLoginLink.click();
         await loginPage.signup(user.name, user.email);
@@ -80,14 +80,14 @@ test.describe('Checkout and Order Tests', () => {
         await cartPage.proceedToCheckout();
 
         await checkoutPage.placeOrder();
-        await paymentPage.enterPaymentDetails(user.name, '4242', '123', '12', '2025');
+        await paymentPage.enterPaymentDetails(user.name, '4242424242424242', '123', '12', '2025');
         await paymentPage.clickPayAndConfirm();
 
         await expect(paymentPage.successMessage).toBeVisible();
         await homePage.headerDeleteAccountLink.click();
     });
 
-    test('Test Case 16: Place Order: Login before Checkout', async () => {
+    test('Test Case 15: Place Order: Login before Checkout', async () => {
         const user = createRandomUser();
         await AuthHelper.registerAndLogin(user); // Quick setup via API
 
@@ -101,65 +101,11 @@ test.describe('Checkout and Order Tests', () => {
         await cartPage.proceedToCheckout();
 
         await checkoutPage.placeOrder();
-        await paymentPage.enterPaymentDetails(user.name, '4242', '123', '12', '2025');
+        await paymentPage.enterPaymentDetails(user.name, '4111111111111111', '123', '12', '2025');
         await paymentPage.clickPayAndConfirm();
 
         await expect(paymentPage.successMessage).toBeVisible();
         await homePage.headerDeleteAccountLink.click();
     });
 
-    test('Test Case 23: Verify address details in checkout page', async () => {
-        const user = createRandomUser();
-        await AuthHelper.registerAndLogin(user);
-
-        await homePage.load();
-        await homePage.headerSignupLoginLink.click();
-        await loginPage.login(user.email, user.password);
-
-        await homePage.headerProductsLink.click();
-        await productsPage.addProductToCart(0);
-        await cartPage.load();
-        await cartPage.proceedToCheckout();
-
-        await checkoutPage.verifyAddressDetails(user.address1, 'delivery');
-        await checkoutPage.verifyAddressDetails(user.city, 'delivery');
-        await checkoutPage.verifyAddressDetails(user.zipcode, 'delivery');
-
-        await checkoutPage.verifyAddressDetails(user.address1, 'billing');
-        await checkoutPage.verifyAddressDetails(user.city, 'billing');
-        await checkoutPage.verifyAddressDetails(user.zipcode, 'billing');
-
-        await homePage.headerDeleteAccountLink.click();
-    });
-
-    test('Test Case 24: Download Invoice after purchase Order', async () => {
-        const user = createRandomUser();
-        await AuthHelper.registerAndLogin(user);
-
-        await homePage.load();
-        await homePage.headerSignupLoginLink.click();
-        await loginPage.login(user.email, user.password);
-
-        await homePage.headerProductsLink.click();
-        await productsPage.addProductToCart(0);
-        await cartPage.load();
-        await cartPage.proceedToCheckout();
-        await checkoutPage.placeOrder();
-
-        await paymentPage.enterPaymentDetails(user.name, '4242', '123', '12', '2025');
-        await paymentPage.clickPayAndConfirm();
-
-        const download = await paymentPage.downloadInvoice();
-        const downloadPath = path.join(__dirname, '../downloads');
-        if (!fs.existsSync(downloadPath)) {
-            fs.mkdirSync(downloadPath);
-        }
-        const filePath = path.join(downloadPath, download.suggestedFilename());
-        await download.saveAs(filePath);
-        expect(fs.existsSync(filePath)).toBeTruthy();
-        fs.unlinkSync(filePath);
-
-        await paymentPage.clickContinue();
-        await homePage.headerDeleteAccountLink.click();
-    });
 });

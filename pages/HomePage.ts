@@ -10,9 +10,9 @@ export class HomePage extends BasePage {
     constructor(page: Page) {
         super(page);
         this.sliderCarousel = page.locator('#slider-carousel');
-        this.subscriptionEmailInput = page.locator('#susbscribe_email');
+        this.subscriptionEmailInput = page.getByRole('textbox', { name: 'subscribe' }).or(page.locator('#susbscribe_email'));
         this.subscribeButton = page.locator('#subscribe');
-        this.successSubscribeMessage = page.locator('.alert-success');
+        this.successSubscribeMessage = page.getByText('You have been successfully subscribed!');
     }
 
     async load() {
@@ -27,7 +27,9 @@ export class HomePage extends BasePage {
     }
 
     async subscribe(email: string) {
+        await this.subscriptionEmailInput.scrollIntoViewIfNeeded();
         await this.subscriptionEmailInput.fill(email);
+        await this.subscribeButton.waitFor({ state: 'visible' });
         await this.clickWithAdHandling(this.subscribeButton);
     }
 

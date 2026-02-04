@@ -27,6 +27,8 @@ export class ProductDetailPage extends BasePage {
     async setQuantity(qty: string) {
         await this.productName.waitFor({ state: 'visible' });
         await this.quantityInput.fill(qty);
+        // Verify value stuck
+        await expect(this.quantityInput).toHaveValue(qty);
     }
 
     async addToCart() {

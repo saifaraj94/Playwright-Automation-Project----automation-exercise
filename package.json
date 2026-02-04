@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test --ui",
+    "codegen": "npx playwright codegen"
+  },
   "dependencies": {
     "@faker-js/faker": "^10.2.0",
     "dotenv": "^17.2.3"

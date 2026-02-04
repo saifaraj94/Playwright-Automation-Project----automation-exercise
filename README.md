@@ -6,14 +6,14 @@ This is a comprehensive end-to-end automation framework for [Automation Exercise
 - **Clean Architecture**: Follows Page Object Model (POM).
 - **Hybrid Testing**: Uses API for fast setup (registration/login) while focusing on UI verification.
 - **Data-Driven**: Uses `@faker-js/faker` for dynamic test data generation.
-- **Robustness**: Independent and parallel-safe test execution.
+- **Robustness**: 20 independent and parallel-safe test cases.
 - **Reporting**: Integrated Playwright HTML reporter.
 
 ## 📁 Project Structure
 - `api/`: API client classes wrapping `APIRequestContext`.
 - `data/`: Type definitions and Faker factories.
 - `pages/`: Page Object classes.
-- `tests/`: Organized test suites (Auth, Cart, Checkout, Products, Misc, API).
+- `tests/`: Organized test suites (Auth, Products, Cart, Checkout, Misc, API - Total 20 tests).
 - `utils/`: Reusable helpers like `AuthHelper`.
 
 ## 🛠️ Setup

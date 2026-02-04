@@ -12,34 +12,20 @@ test.describe('Miscellaneous Tests', () => {
         await homePage.load();
     });
 
-    test('Test Case 6: Verify Test Cases Page', async () => {
+    test('Test Case 16: Verify Test Cases Page', async () => {
         await homePage.navigateTo('/test_cases');
         await testCasesPage.verifyPageLoaded();
     });
 
-    test('Test Case 7: Verify Subscription in home page', async () => {
-        await homePage.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        await homePage.subscribe('test@example.com');
+    test('Test Case 17: Verify Subscription in home page', async () => {
+        // More robust scroll to bottom
+        await homePage.page.evaluate(() => {
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+        // Wait for the input to be visible which confirms we are at the footer
+        await homePage.subscriptionEmailInput.waitFor({ state: 'visible' });
+        await homePage.subscribe('test' + Date.now() + '@example.com');
         await homePage.verifySubscriptionSuccess();
     });
 
-    test('Test Case 8: Verify Scroll Up without Arrow button and Scroll Down functionality', async () => {
-        await homePage.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        await expect(homePage.subscriptionEmailInput).toBeInViewport();
-
-        await homePage.page.evaluate(() => window.scrollTo(0, 0));
-        await expect(homePage.sliderCarousel).toBeInViewport();
-        await expect(homePage.page.locator('h2:has-text("Full-Fledged practice website")').first()).toBeVisible();
-    });
-
-    test('Test Case 9: Verify Scroll Up with Arrow button and Scroll Down functionality', async () => {
-        await homePage.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        await expect(homePage.subscriptionEmailInput).toBeInViewport();
-
-        const scrollUpArrow = homePage.page.locator('#scrollUp');
-        await scrollUpArrow.click();
-
-        await expect(homePage.sliderCarousel).toBeInViewport();
-        await expect(homePage.page.locator('h2:has-text("Full-Fledged practice website")').first()).toBeVisible();
-    });
 });

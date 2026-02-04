@@ -26,18 +26,32 @@ export class ProductsPage extends BasePage {
     }
 
     async viewProductDetails(index: number) {
-        // View the Nth product
-        const link = this.page.locator(`.choose > ul > li > a`).nth(index);
+        // Find the product container first, then find the link inside it
+        const product = this.page.locator('.product-image-wrapper').nth(index);
+        const link = product.locator('.choose a');
         await this.clickWithAdHandling(link);
     }
 
     async addProductToCart(index: number) {
-        // Hover and click 'Add to cart'
         await this.handleAds();
-        const product = this.page.locator('.single-products').nth(index);
-        await product.hover();
-        const addButton = product.locator('.add-to-cart').first();
-        await this.clickWithAdHandling(addButton);
-        await this.clickWithAdHandling(this.page.locator('.modal-footer .btn-success')); // Continue shopping
+
+        const productContainer = this.page.locator('.product-image-wrapper').nth(index);
+        await productContainer.scrollIntoViewIfNeeded();
+
+        const addButton = productContainer.locator('.add-to-cart').first();
+        const continueBtn = this.page.getByRole('button', { name: 'Continue Shopping' });
+
+        for (let i = 0; i < 2; i++) {
+            await this.clickWithAdHandling(addButton);
+            try {
+                await continueBtn.waitFor({ state: 'visible', timeout: 5000 });
+                break;
+            } catch (e) {
+                if (i === 1) throw e;
+                console.log(`Modal didn't appear, retrying add to cart...`);
+                await this.handleAds();
+            }
+        }
+        await continueBtn.click();
     }
 }

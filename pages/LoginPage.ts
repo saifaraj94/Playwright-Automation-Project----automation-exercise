@@ -21,16 +21,20 @@ export class LoginPage extends BasePage {
         super(page);
         this.loginForm = page.locator('.login-form');
         this.signupForm = page.locator('.signup-form');
-        this.loginEmailInput = page.locator('[data-qa="login-email"]');
-        this.loginPasswordInput = page.locator('[data-qa="login-password"]');
-        this.loginButton = page.locator('[data-qa="login-button"]');
 
-        this.signupNameInput = page.locator('[data-qa="signup-name"]');
-        this.signupEmailInput = page.locator('[data-qa="signup-email"]');
-        this.signupButton = page.locator('[data-qa="signup-button"]');
+        // Login selectors
+        this.loginEmailInput = page.getByTestId('login-email');
+        this.loginPasswordInput = page.getByTestId('login-password');
+        this.loginButton = page.getByTestId('login-button');
 
-        this.loginErrorMessage = page.locator('.login-form p:has-text("incorrect"), .login-form .alert-danger, .login-form p[style*="color: red"], .login-form p:has-text("Your email or password is incorrect!")').first();
-        this.signupErrorMessage = page.locator('.signup-form p:has-text("exist"), .signup-form .alert-danger, .signup-form p[style*="color: red"]').first();
+        // Signup selectors
+        this.signupNameInput = page.getByTestId('signup-name');
+        this.signupEmailInput = page.getByTestId('signup-email');
+        this.signupButton = page.getByTestId('signup-button');
+
+        // Error messages - keep broad for robustness, or use specific text
+        this.loginErrorMessage = page.locator('.login-form p').filter({ hasText: /incorrect|error/i }).first();
+        this.signupErrorMessage = page.locator('.signup-form p').filter({ hasText: /exist|error/i }).first();
     }
 
     async load() {
@@ -39,6 +43,7 @@ export class LoginPage extends BasePage {
     }
 
     async login(email: string, pass: string) {
+        // Wait for the form to be stable
         await this.loginForm.waitFor();
         await this.loginEmailInput.fill(email);
         await this.loginPasswordInput.fill(pass);
@@ -46,16 +51,15 @@ export class LoginPage extends BasePage {
     }
 
     async signup(name: string, email: string) {
+        await this.signupForm.waitFor();
         await this.signupNameInput.fill(name);
         await this.signupEmailInput.fill(email);
         await this.clickWithAdHandling(this.signupButton);
     }
 
     async verifyError(message: string) {
-        await this.handleAds();
-        // Resilient check: look for the error message anywhere with a good timeout
-        const errorLocator = this.page.locator(`text=${message}`);
-        await errorLocator.waitFor({ state: 'visible', timeout: 15000 });
-        await expect(errorLocator).toBeVisible();
+        // Broad text match is often better for error toasts/messages than rigid ID
+        const errorLocator = this.page.getByText(message);
+        await expect(errorLocator).toBeVisible({ timeout: 15000 });
     }
 }

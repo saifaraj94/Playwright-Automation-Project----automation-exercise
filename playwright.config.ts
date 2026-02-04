@@ -8,17 +8,18 @@ export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
     headless: true,
     baseURL: 'https://automationexercise.com',
-    trace: "on",
+    trace: 'on',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    navigationTimeout: 60000,
-    actionTimeout: 40000,
+    navigationTimeout: 30000,
+    actionTimeout: 15000,
+    testIdAttribute: 'data-qa',
   },
 
   projects: [

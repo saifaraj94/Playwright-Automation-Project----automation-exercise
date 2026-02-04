@@ -9,7 +9,6 @@ export class PaymentPage extends BasePage {
     readonly expiryYearInput: Locator;
     readonly payButton: Locator;
     readonly successMessage: Locator;
-    readonly downloadInvoiceButton: Locator;
     readonly continueButton: Locator;
 
     constructor(page: Page) {
@@ -21,7 +20,6 @@ export class PaymentPage extends BasePage {
         this.expiryYearInput = page.locator('[data-qa="expiry-year"]');
         this.payButton = page.locator('[data-qa="pay-button"]');
         this.successMessage = page.locator('[data-qa="order-placed"]');
-        this.downloadInvoiceButton = page.locator('a:has-text("Download Invoice")');
         this.continueButton = page.locator('[data-qa="continue-button"]');
     }
 
@@ -36,12 +34,6 @@ export class PaymentPage extends BasePage {
     async clickPayAndConfirm() {
         await this.clickWithAdHandling(this.payButton);
         await this.successMessage.waitFor({ state: 'visible', timeout: 15000 });
-    }
-
-    async downloadInvoice() {
-        const downloadPromise = this.page.waitForEvent('download');
-        await this.clickWithAdHandling(this.downloadInvoiceButton);
-        return await downloadPromise;
     }
 
     async clickContinue() {

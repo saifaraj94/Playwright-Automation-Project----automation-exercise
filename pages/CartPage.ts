@@ -8,9 +8,10 @@ export class CartPage extends BasePage {
 
     constructor(page: Page) {
         super(page);
-        this.proceedToCheckoutButton = page.locator('a.check_out');
+        this.proceedToCheckoutButton = page.getByText('Proceed To Checkout');
         this.cartItems = page.locator('#cart_info_table tbody tr');
-        this.loginRegisterLink = page.locator('.modal-content a[href="/login"]').first();
+        // The modal link "Register / Login"
+        this.loginRegisterLink = page.getByRole('link', { name: 'Register / Login' });
     }
 
     async load() {
@@ -18,12 +19,13 @@ export class CartPage extends BasePage {
     }
 
     async proceedToCheckout() {
+        await this.proceedToCheckoutButton.waitFor({ state: 'visible' });
         await this.clickWithAdHandling(this.proceedToCheckoutButton);
     }
 
     async clickLoginRegisterModal() {
-        await this.loginRegisterLink.first().waitFor({ state: 'visible' });
-        await this.clickWithAdHandling(this.loginRegisterLink.first());
+        await this.loginRegisterLink.waitFor({ state: 'visible' });
+        await this.clickWithAdHandling(this.loginRegisterLink);
     }
 
     async verifyProductInCart(productName: string) {
@@ -31,6 +33,7 @@ export class CartPage extends BasePage {
     }
 
     async getProductQuantity(index: number = 0) {
-        return await this.page.locator('td.cart_quantity button.disabled').nth(index).innerText();
+        // The quantity is usually in a button, but let's be flexible
+        return await this.page.locator('td.cart_quantity').nth(index).innerText();
     }
 }

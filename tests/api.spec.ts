@@ -9,7 +9,7 @@ test.describe('API Tests', () => {
         authApi = new AuthApi(request);
     });
 
-    test('API: Register and Delete Account', async () => {
+    test('Test Case 18: API: Register and Delete Account', async () => {
         const user = createRandomUser();
 
         // Register
@@ -31,14 +31,14 @@ test.describe('API Tests', () => {
         expect(delBody.message).toBe('Account deleted!');
     });
 
-    test('API: Get All Products List', async ({ request }) => {
+    test('Test Case 19: API: Get All Products List', async ({ request }) => {
         const response = await request.get('/api/productsList');
         expect(response.status()).toBe(200);
         const body = await response.json();
         expect(body.products.length).toBeGreaterThan(0);
     });
 
-    test('API: Search Product', async ({ request }) => {
+    test('Test Case 20: API: Search Product', async ({ request }) => {
         const response = await request.post('/api/searchProduct', {
             form: { search_product: 'top' }
         });
