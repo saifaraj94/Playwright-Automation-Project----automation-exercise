@@ -20,6 +20,7 @@ export class ProductsPage extends BasePage {
     }
 
     async searchProduct(productName: string) {
+        await this.searchInput.waitFor({ state: 'visible' });
         await this.searchInput.fill(productName);
         await this.clickWithAdHandling(this.searchButton);
     }

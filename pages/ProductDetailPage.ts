@@ -25,11 +25,13 @@ export class ProductDetailPage extends BasePage {
     }
 
     async setQuantity(qty: string) {
+        await this.productName.waitFor({ state: 'visible' });
         await this.quantityInput.fill(qty);
     }
 
     async addToCart() {
         await this.clickWithAdHandling(this.addToCartButton);
+        await this.page.locator('.modal-content').waitFor({ state: 'visible' });
         await this.clickWithAdHandling(this.page.locator('.modal-footer .btn-success')); // Continue
     }
 

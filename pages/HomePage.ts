@@ -22,6 +22,7 @@ export class HomePage extends BasePage {
 
     async viewProductDetails(index: number = 0) {
         const viewProductButton = this.page.locator('.choose a[href*="product_details"]').nth(index);
+        await viewProductButton.waitFor({ state: 'visible' });
         await this.clickWithAdHandling(viewProductButton);
     }
 
