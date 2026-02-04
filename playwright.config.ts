@@ -6,15 +6,15 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 2,
-  workers: 1,
-  reporter: 'list',
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
   use: {
     headless: true,
     baseURL: 'https://automationexercise.com',
-    trace: 'on-first-retry',
+    trace: "on",
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     navigationTimeout: 60000,
